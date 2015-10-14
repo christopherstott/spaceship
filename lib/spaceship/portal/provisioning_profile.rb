@@ -394,8 +394,10 @@ module Spaceship
       # Is the certificate of this profile available?
       # @return (Bool) is the certificate valid?
       def certificate_valid?
+        puts 'certificate_valid?'
         return false if (certificates || []).count == 0
         certificates.each do |c|
+          puts 'c = ' + c.inspect
           puts 'c.id = ' + c.id.to_s
           if Spaceship::Certificate.all.collect { |s| s.id }.include?(c.id)
             return true
