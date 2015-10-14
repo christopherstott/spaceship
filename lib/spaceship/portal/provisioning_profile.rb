@@ -396,6 +396,7 @@ module Spaceship
       def certificate_valid?
         puts 'certificate_valid?'
         return false if (certificates || []).count == 0
+        puts 'certificates = ' + certificates.inspect
         certificates.each do |c|
           puts 'c = ' + c.inspect
           puts 'c.id = ' + c.id.to_s
