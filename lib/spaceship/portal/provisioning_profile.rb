@@ -228,6 +228,22 @@ module Spaceship
           self.new(profile)
         end
 
+        # @return (Array) Returns all profiles registered for this account-        #  If you're calling this from a subclass (like AdHoc), this will
+        #  If you're calling this from a subclass (like AdHoc), this will
+        #  only return the profiles that are of this type
+        def all_including_managed_by_xcode
+          profiles = client.provisioning_profiles.map do |profile|
+            self.factory(profile)
+          end
+
+          return profiles if self == ProvisioningProfile
+
+          # only return the profiles that match the class
+          profiles.select do |profile|
+            profile.class == self
+          end
+        end
+
         # @return (Array) Returns all profiles registered for this account
         #  If you're calling this from a subclass (like AdHoc), this will
         #  only return the profiles that are of this type
