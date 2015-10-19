@@ -252,6 +252,8 @@ module Spaceship
       end
 
       if content.nil?
+        puts 'Content is nil!'
+        puts 'response = ' + response.inspect
         raise UnexpectedResponse.new, response.body
       else
         store_csrf_tokens(response)
