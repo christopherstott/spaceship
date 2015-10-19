@@ -33,6 +33,8 @@ module Spaceship
 
     class UnexpectedResponse < StandardError; end
 
+    class MaintenanceResponse < StandardError; end
+
     # Authenticates with Apple's web services. This method has to be called once
     # to generate a valid session. The session will automatically be used from then
     # on.
@@ -173,6 +175,15 @@ module Spaceship
 
     def with_retry(tries = 5, &block)
       return block.call
+    rescue MaintenanceResponse => ex
+      puts "Caught MaintenanceResponse tries = " + tries.to_s
+      unless (tries -= 1).zero?
+        puts "Sleeping then retrying"
+        sleep 3
+        retry
+      end
+
+      raise ex # re-raise the exception
     rescue Faraday::Error::TimeoutError => ex # New Faraday version: Faraday::TimeoutError => ex
       unless (tries -= 1).zero?
         sleep 3
@@ -204,7 +215,7 @@ module Spaceship
         headers.merge!({ 'Cookie' => cookie })
         headers.merge!(csrf_tokens)
       end
-      headers.merge!({ 'User-Agent' => 'spaceship' })
+      headers.merge!({ 'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.71 Safari/537.36' })
 
       # Before encoding the parameters, log them
       log_request(method, url_or_path, params)
@@ -239,9 +250,23 @@ module Spaceship
     # Actually sends the request to the remote server
     # Automatically retries the request up to 3 times if something goes wrong
     def send_request(method, url_or_path, params, headers, &block)
+      puts 'send_request : '
+      puts ' - method = ' + url_or_path.to_s
+      puts ' - params = ' + params.inspect
+      puts ' - headers = ' + headers.inspect
+      response = nil
       with_retry do
-        @client.send(method, url_or_path, params, headers, &block)
+        puts 'Actually sending'
+        response = @client.send(method, url_or_path, params, headers, &block)
+
+        if response.status == 302 && response['location'].include?('maintenance')
+          puts "response.status == 302"
+          puts response.inspect
+          raise MaintenanceResponse.new
+        end
       end
+
+      return response
     end
 
     def parse_response(response, expected_key = nil)
