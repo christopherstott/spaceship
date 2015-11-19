@@ -264,6 +264,12 @@ module Spaceship
           puts response.inspect
           raise MaintenanceResponse.new
         end
+
+        if response.status == 200 && response['body'] && response['body']['resultString'] == 'Unexpected error occured'
+          puts "Got unexpected error occured. Treating like Maintenance"
+          puts response.inspect
+          raise MaintenanceResponse.new
+        end
       end
 
       return response
