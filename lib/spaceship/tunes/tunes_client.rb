@@ -145,7 +145,7 @@ module Spaceship
         return response
       else
         if response["Location"] == "/auth" # redirect to 2 step auth page
-          raise "spaceship / fastlane doesn't support 2 step enabled accounts yet. Please temporary disable 2 step verification until spaceship was updated."
+          raise TwoFactorAuthenticationError.new, "spaceship / fastlane doesn't support 2 step enabled accounts yet. Please temporary disable 2 step verification until spaceship was updated."
         elsif (response.body || "").include?('invalid="true"')
           # User Credentials are wrong
           raise InvalidUserCredentialsError.new, "Invalid username and password combination. Used '#{user}' as the username."

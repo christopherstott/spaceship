@@ -41,7 +41,7 @@ module Spaceship
         # User Credentials are wrong
         raise InvalidUserCredentialsError.new, "Invalid username and password combination. Used '#{user}' as the username."
       elsif (response.body || "").include?("Verify your identity")
-        raise "spaceship / fastlane doesn't support 2 step enabled accounts yet. Please temporary disable 2 step verification until spaceship was updated."
+        raise TwoFactorAuthenticationError.new, "spaceship / fastlane doesn't support 2 step enabled accounts yet. Please temporary disable 2 step verification until spaceship was updated."
       end
 
       case response.status

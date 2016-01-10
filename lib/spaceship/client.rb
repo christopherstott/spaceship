@@ -31,6 +31,9 @@ module Spaceship
     # Invalid user credentials were provided
     class InvalidUserCredentialsError < StandardError; end
 
+    # The Apple ID has two factor authentication enabled
+    class TwoFactorAuthenticationError < StandardError; end
+
     # Raised when no user credentials were passed at all
     class NoUserCredentialsError < StandardError; end
 
