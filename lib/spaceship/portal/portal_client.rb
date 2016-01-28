@@ -345,21 +345,28 @@ module Spaceship
       parse_response(req, 'provisioningProfiles')
     end
 
-    def create_provisioning_profile!(name, distribution_method, app_id, certificate_ids, device_ids, mac: false)
+    def create_provisioning_profile!(name, distribution_method, app_id, certificate_ids, device_ids, mac: false, tv: false)
       if csrf_tokens.count == 0
         # If we directly create a new profile without querying anything before
         # we don't have a valid csrf token, that's why we have to do at least one request
         provisioning_profiles
       end
 
-      r = request(:post, "account/#{platform_slug(mac)}/profile/createProvisioningProfile.action", {
+      params = {
         teamId: team_id,
         provisioningProfileName: name,
         appIdId: app_id,
         distributionType: distribution_method,
         certificateIds: certificate_ids,
         deviceIds: device_ids
-      })
+
+      }
+
+      if tv
+        params['subPlatform'] = 'tvOS'
+      end
+
+      r = request(:post, "account/#{platform_slug(mac)}/profile/createProvisioningProfile.action", params)
       parse_response(r, 'provisioningProfile')
     end
 

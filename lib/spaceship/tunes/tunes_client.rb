@@ -63,6 +63,8 @@ module Spaceship
         req.headers['Content-Type'] = 'application/json'
       end
 
+      puts "response.body.inspect"
+      puts response.body.inspect
       handle_itc_response(response.body)
 
       @current_team_id = team_id
