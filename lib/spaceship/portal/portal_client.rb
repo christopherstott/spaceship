@@ -375,6 +375,7 @@ module Spaceship
         teamId: team_id,
         displayId: profile_id
       })
+
       a = parse_response(r)
       if r.success? && a.include?("DOCTYPE plist PUBLIC")
         return a
@@ -391,8 +392,8 @@ module Spaceship
       parse_response(r)
     end
 
-    def repair_provisioning_profile!(profile_id, name, distribution_method, app_id, certificate_ids, device_ids, mac: false)
-      r = request(:post, "account/#{platform_slug(mac)}/profile/regenProvisioningProfile.action", {
+    def repair_provisioning_profile!(profile_id, name, distribution_method, app_id, certificate_ids, device_ids, mac: false, tv: false)
+      params = {
         teamId: team_id,
         provisioningProfileId: profile_id,
         provisioningProfileName: name,
@@ -400,7 +401,13 @@ module Spaceship
         distributionType: distribution_method,
         certificateIds: certificate_ids.join(','),
         deviceIds: device_ids
-      })
+      }
+
+      if tv
+        params['subPlatform'] = 'tvOS'
+      end
+
+      r = request(:post, "account/#{platform_slug(mac)}/profile/regenProvisioningProfile.action", params)
 
       parse_response(r, 'provisioningProfile')
     end

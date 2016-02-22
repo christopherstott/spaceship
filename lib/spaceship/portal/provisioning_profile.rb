@@ -339,6 +339,51 @@ module Spaceship
       # This will also update the code signing identity if necessary
       # @return (ProvisioningProfile) A new provisioning profile, as
       #  the repair method will generate a profile with a new ID
+      def update_for_tv!
+        unless certificate_valid?
+          if mac?
+            if self.kind_of? Development
+              self.certificates = [Spaceship::Certificate::MacDevelopment.all.first]
+            else
+              self.certificates = [Spaceship::Certificate::MacAppDistribution.all.first]
+            end
+          else
+            if self.kind_of? Development
+              self.certificates = [Spaceship::Certificate::Development.all.first]
+            elsif self.kind_of? InHouse
+              self.certificates = [Spaceship::Certificate::InHouse.all.first]
+            else
+              self.certificates = [Spaceship::Certificate::Production.all.first]
+            end
+          end
+        end
+
+        client.with_retry do
+          client.repair_provisioning_profile!(
+            id,
+            name,
+            distribution_method,
+            app.app_id,
+            certificates.map(&:id),
+            devices.map(&:id),
+            mac: mac?,
+            tv: true
+          )
+        end
+
+        # We need to fetch the provisioning profile again, as the ID changes
+        profile = Spaceship::ProvisioningProfile.all(mac: mac?).find do |p|
+          p.name == self.name # we can use the name as it's valid
+        end
+
+        return profile
+      end
+
+      # Updates the provisioning profile from the local data
+      # e.g. after you added new devices to the profile
+      # This will also update the code signing identity if necessary
+      # @return (ProvisioningProfile) A new provisioning profile, as
+      #  the repair method will generate a profile with a new ID
       def update!
         unless certificate_valid?
           if mac?
