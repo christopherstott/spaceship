@@ -28,6 +28,9 @@ module Spaceship
     # /tmp/spaceship[time].log by default
     attr_accessor :logger
 
+    # Account needs email to be verified
+    class VerifyAccountNeeded < StandardError; end
+
     # Invalid user credentials were provided
     class InvalidUserCredentialsError < StandardError; end
 

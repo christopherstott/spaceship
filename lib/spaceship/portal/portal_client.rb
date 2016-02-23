@@ -1,4 +1,5 @@
 module Spaceship
+
   class PortalClient < Spaceship::Client
     #####################################################
     # @!group Init and Login
@@ -377,8 +378,11 @@ module Spaceship
       })
 
       a = parse_response(r)
+
       if r.success? && a.include?("DOCTYPE plist PUBLIC")
         return a
+      elsif r.status == 302 && r.headers && r.headers['location'] && r.headers['location'].include?("https://developer.apple.com/register/agree")
+        raise VerifyAccountNeeded.new
       else
         raise UnexpectedResponse.new, "Couldn't download provisioning profile, got this instead: #{a}"
       end
