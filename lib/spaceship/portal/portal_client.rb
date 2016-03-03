@@ -372,9 +372,10 @@ module Spaceship
     end
 
     def download_provisioning_profile(profile_id, mac: false)
-      r = request(:get, "https://developer.apple.com/account/#{platform_slug(mac)}/profile/profileContentDownload.action", {
+      #r = request(:get, "https://developer.apple.com/account/#{platform_slug(mac)}/profile/profileContentDownload.action", {
+      r = request(:get, "https://developer.apple.com/services-account/QH65B2/account/ios/profile/downloadProfileContent", {
         teamId: team_id,
-        displayId: profile_id
+        provisioningProfileId: profile_id
       })
 
       a = parse_response(r)
